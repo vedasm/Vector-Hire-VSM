@@ -1,7 +1,6 @@
-numpy
-sentence-transformers
-torch
-transformers
+numpy>=1.24
+sentence-transformers>=3.0
+torch>=2.0
+transformers>=4.40
 streamlit>=1.35.0
-pandas
-numpy
+pandas>=2.0
