@@ -141,7 +141,7 @@ model_path = "models/all-MiniLM-L6-v2"
 ```
 Therefore no model download is required during evaluation.
 
-# Reproducing the Submission
+## Reproducing the Submission
 
 The following single command generates the final `submission.csv` i.e `team_Vector-Hire.csv` :
 
