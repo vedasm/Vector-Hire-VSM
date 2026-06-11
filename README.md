@@ -160,4 +160,72 @@ This will:
 - Write the top 100 to `submission.csv`
 **Expected runtime:** ~2–4 minutes on CPU for 100K candidates.
 
+## Validate the Submission
+```
+python validate_submission.py submission.csv
+```
+Obtained output : `Submission is valid.`
+
+## Scoring Logic
+ 
+### Stage 1 — Rule-based Score 
+ 
+| Signal | Weight |
+|---|---|
+| Skill keyword match (skills list) | +4.0 per keyword |
+| Skill keyword match (full text) | +1.8 per keyword |
+| Core domain match (retrieval/ranking/recommendation) | +8.0 |
+| Vector DB / search infrastructure match | +8.0 |
+| LLM / fine-tuning match | +6.0 |
+| Target AI/ML title match | +15.0 |
+| Adjacent title match (backend, search, platform) | +6.0 |
+| Non-service company | +4.0 |
+| Service company (TCS, Infosys, Wipro, etc.) | −14.0 |
+| Negative title (QA, sales, HR, etc.) | −18.0 |
+| Negative skill domain (CV, speech, robotics) | −10.0 per match |
+| Experience 5–9 yrs | +18.0 |
+| Experience 4–5 or 9–12 yrs | +10.0 |
+| Experience < 3 yrs | −8.0 |
+| Open to work | +4.0 |
+| Recruiter response rate | up to +5.0 |
+| Interview completion rate | up to +4.0 |
+| GitHub activity | up to +5.0 |
+| Short notice period (≤15 days) | +4.0 |
+| India (Pune / Noida / Delhi / Hyderabad / Mumbai) | +3.0 |
+| India (other city) | +1.0 |
+| Outside India | −1.0 |
+ 
+### Stage 2 — Semantic Score
+ 
+- JD text and candidate profile text are encoded using `all-MiniLM-L6-v2`
+- Cosine similarity is computed between the JD embedding and each candidate embedding
+- Normalized to [0, 1]
+### Final Score
+ 
+```
+final_score = (rule_score × 0.65) + (semantic_score × 100 × 0.35)
+```
+ 
+## Honeypot Detection
+ 
+Candidates are flagged and removed if they exhibit any of:
+ 
+- Claimed years of experience exceed the maximum possible given their earliest career start date (with a +2 year buffer)
+- Three or more skills marked `advanced`/`expert` with 0 months duration
+- Total skill duration months exceed 25× their total career duration months
+
+
+## Dependencies
+
+Dependencies are specified in:
+```text
+requirements.txt
+```
+Install using:
+```bash
+pip install -r requirements.txt
+```
+
+
+
 
