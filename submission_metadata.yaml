@@ -64,15 +64,13 @@ ai_tools_used:
 ai_usage_summary: |
   - "Claude & ChatGPT was used during development for code review, bug fixes, and all-MiniLM-L6-v2 model downloading and fine-tuning response and score."
   - "GitHub Copilot was used for autocomplete and code suggestions during development."
+  - "ChatGPT provided guidance on choosing the right model for the task."
   - "Also used ChatGPT for uploading model which had high file size and was not uploading successfully via GitHub. ChatGPT provided guidance on how to use Git LFS for uploading large files to GitHub."
 
 # ============================================================================
 # Approach summary (optional but recommended)
 # ============================================================================
 methodology_summary: |
-  ≤200 word summary of your approach. Strongly recommended.
-
-  Example:
   "A two-stage candidate ranking pipeline that scores and ranks the top 100 candidates
   from a 100K pool against a Senior AI Engineer job description. Stage 1 uses rule-based
   scoring to filter down to 1,000 candidates; Stage 2 applies semantic reranking using 
