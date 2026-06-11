@@ -1,6 +1,8 @@
 # Vector Hire — RedRob Candidate Ranker
 
-A two-stage AI candidate ranking system built for the RedRob challenge.
+A two-stage candidate ranking pipeline that scores and ranks the top 100 candidates from a 100K pool against a Senior AI Engineer job description. Stage 1 uses rule-based scoring to filter down to 1,000 candidates; Stage 2 applies semantic reranking using `all-MiniLM-L6-v2` to produce the final top 100.
+
+---
 
 ## How it works
 
