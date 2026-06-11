@@ -6,11 +6,17 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
+ENV STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
+ENV STREAMLIT_SERVER_MAX_UPLOAD_SIZE=200
+
+# Download model to a fixed path readable by all users
+ENV SENTENCE_TRANSFORMERS_HOME=/app/models
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
 
 COPY app.py main.py ./
 COPY data/job_description.md data/candidate_schema.json data/sample_candidates.json ./data/
 
+# Create user AFTER model download, then grant read access
 RUN useradd -m -u 1000 appuser && chown -R appuser /app
 USER appuser
 
