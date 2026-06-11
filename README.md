@@ -1,6 +1,6 @@
 ---
 title: Vector Hire – RedRob Candidate Ranker
-emoji: 🎯
+emoji: 💼
 colorFrom: indigo
 colorTo: purple
 sdk: docker
