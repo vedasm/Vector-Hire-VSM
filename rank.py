@@ -11,7 +11,7 @@ import argparse
 parser = argparse.ArgumentParser(description="RedRob candidate ranking pipeline")
 parser.add_argument("--candidates", required=True,help="Path to the candidates JSONL file  e.g. ./data/candidates.jsonl")
 parser.add_argument("--out", required=True,help="Path for the output CSV  e.g. ./submission.csv")
-parser.add_argument("--jd", default="job_description.md",help="Path to the job description markdown file  (default: data/job_description.md)")
+parser.add_argument("--jd", default="data/job_description.md",help="Path to the job description markdown file  (default: data/job_description.md)")
 args = parser.parse_args()
 
 # Configuration
@@ -442,7 +442,7 @@ jd_text = load_jd(JD_File)
 
 # honeypot removal
 candidates = [c for c in candidates if not is_honeypot(c)]
-print(f"  {len(candidates)} candidates after honeypot removal")
+print(f"{len(candidates)} candidates after honeypot removal")
 
 # stage 1: rule-based scoring
 print("Stage 1: rule-based scoring ...")
