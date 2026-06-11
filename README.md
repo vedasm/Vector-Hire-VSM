@@ -143,7 +143,7 @@ Therefore no model download is required during evaluation.
 
 # Reproducing the Submission
 
-The following single command generates the final submission CSV:
+The following single command generates the final `submission.csv` i.e `team_Vector-Hire.csv` :
 
 ```bash
 python rank.py --candidates ./data/candidates.jsonl --out ./submission.csv 
