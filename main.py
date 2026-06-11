@@ -14,11 +14,12 @@ model_path = "models/all-MiniLM-L6-v2"
 top_filter = 1000
 final_filter = 100
 
-# Load candidates
+# Load candidates (only when running as CLI — the Streamlit app handles its own upload)
 candidates = []
-with open(candidates_file, 'r') as f:
-    for line in f:
-        candidates.append(json.loads(line)) # pyright: ignore[reportUnknownMemberType]
+if Path(candidates_file).exists():
+    with open(candidates_file, 'r') as f:
+        for line in f:
+            candidates.append(json.loads(line)) # pyright: ignore[reportUnknownMemberType]
 
 #ketwords to look for in job description and candidate profiles
 
