@@ -9,7 +9,8 @@ from sentence_transformers import SentenceTransformer
 
 JD_File = "data/job_description.md"
 candidates_file = "data/candidates.jsonl"
-model_path = "models/all-MiniLM-L6-v2"
+_local_model = Path("models/all-MiniLM-L6-v2")
+model_path = str(_local_model) if _local_model.exists() else "sentence-transformers/all-MiniLM-L6-v2"
 
 top_filter = 1000
 final_filter = 100
