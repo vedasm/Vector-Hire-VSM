@@ -26,7 +26,7 @@ Vector-Hire/
 ```
 ## Setup
 
-### Windows
+### For Windows
 
 Prerequisites :- 
 - [Git for Windows](https://git-scm.com/install/windows)
@@ -49,7 +49,7 @@ cd Vector-Hire
 git lfs pull
 ```
 
-### Linux
+### For Linux
 
 Install the Git LFS in Linux
 ```
@@ -74,7 +74,7 @@ cd Vector-Hire
 git lfs pull
 ```
 
-## MacOS
+## For MacOS
 
 Install with Homebrew:
 
