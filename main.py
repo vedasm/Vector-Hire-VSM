@@ -9,18 +9,16 @@ from sentence_transformers import SentenceTransformer
 
 JD_File = "data/job_description.md"
 candidates_file = "data/candidates.jsonl"
-_local_model = Path("models/all-MiniLM-L6-v2")
-model_path = str(_local_model) if _local_model.exists() else "sentence-transformers/all-MiniLM-L6-v2"
+model_path = "models/all-MiniLM-L6-v2"
 
 top_filter = 1000
 final_filter = 100
 
-# Load candidates (only when running as CLI — the Streamlit app handles its own upload)
+# Load candidates
 candidates = []
-if Path(candidates_file).exists():
-    with open(candidates_file, 'r') as f:
-        for line in f:
-            candidates.append(json.loads(line)) # pyright: ignore[reportUnknownMemberType]
+with open(candidates_file, 'r') as f:
+    for line in f:
+        candidates.append(json.loads(line)) # pyright: ignore[reportUnknownMemberType]
 
 #ketwords to look for in job description and candidate profiles
 
@@ -426,64 +424,62 @@ def generate_reasoning(candidate):
         parts.append("Concerns: " + "; ".join(concerns) + ".")
     return " ".join(parts).strip()
 
-if __name__ == "__main__":
-    jd_text = load_jd(JD_File)
+jd_text = load_jd(JD_File)
 
-    # optional honeypot removal
-    candidates = [c for c in candidates if not is_honeypot(c)]
+# optional honeypot removal
+candidates = [c for c in candidates if not is_honeypot(c)]
 
-    # stage 1: rule-based scoring
-    rule_results = []
-    for candidate in candidates:
-        score = rule_score(candidate)
-        rule_results.append((score, candidate))
+# stage 1: rule-based scoring
+rule_results = []
+for candidate in candidates:
+    score = rule_score(candidate)
+    rule_results.append((score, candidate))
 
-    rule_results.sort(key=lambda x: (-x[0], x[1]["candidate_id"]))
-    top_candidates = rule_results[:top_filter]
+rule_results.sort(key=lambda x: (-x[0], x[1]["candidate_id"]))
+top_candidates = rule_results[:top_filter]
 
-    # stage 2: semantic reranking
-    model = SentenceTransformer(model_path)
+# stage 2: semantic reranking
+model = SentenceTransformer(model_path)
 
-    jd_embedding = model.encode(
-        jd_text,
+jd_embedding = model.encode(
+    jd_text,
+    convert_to_numpy=True,
+    normalize_embeddings=True
+)
+
+final_results = []
+
+for rule_value, candidate in top_candidates:
+    text = build_candidate_embedding_text(candidate)
+    emb = model.encode(
+        text,
         convert_to_numpy=True,
         normalize_embeddings=True
     )
 
-    final_results = []
+    semantic_score = cosine_similarity(jd_embedding, emb)
+    semantic_score = max(0.0, min(1.0, semantic_score))
 
-    for rule_value, candidate in top_candidates:
-        text = build_candidate_embedding_text(candidate)
-        emb = model.encode(
-            text,
-            convert_to_numpy=True,
-            normalize_embeddings=True
-        )
+    final_score = (rule_value * 0.65) + (semantic_score * 100.0 * 0.35)
 
-        semantic_score = cosine_similarity(jd_embedding, emb)
-        semantic_score = max(0.0, min(1.0, semantic_score))
+    final_results.append(
+        (round(final_score, 6), candidate)
+    )
 
-        final_score = (rule_value * 0.65) + (semantic_score * 100.0 * 0.35)
+final_results.sort(key=lambda x: (-x[0], x[1]["candidate_id"]))
+top_final = final_results[:final_filter]
 
-        final_results.append(
-            (round(final_score, 6), candidate)
-        )
+# write submission.csv
+with open("submission.csv", "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["candidate_id", "rank", "score", "reasoning"])
 
-    final_results.sort(key=lambda x: (-x[0], x[1]["candidate_id"]))
-    top_final = final_results[:final_filter]
+    for rank, (score, candidate) in enumerate(top_final, start=1):
+        writer.writerow([
+            candidate["candidate_id"],
+            rank,
+            f"{score:.6f}",
+            generate_reasoning(candidate)
+        ])
 
-    # write submission.csv
-    with open("submission.csv", "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["candidate_id", "rank", "score", "reasoning"])
-
-        for rank, (score, candidate) in enumerate(top_final, start=1):
-            writer.writerow([
-                candidate["candidate_id"],
-                rank,
-                f"{score:.6f}",
-                generate_reasoning(candidate)
-            ])
-
-    print("submission.csv created successfully")
-
+print("submission.csv created successfully")
