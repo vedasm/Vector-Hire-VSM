@@ -4,11 +4,20 @@ import json
 import numpy as np
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
+import argparse
+
+
+# CLI
+parser = argparse.ArgumentParser(description="RedRob candidate ranking pipeline")
+parser.add_argument("--candidates", required=True,help="Path to the candidates JSONL file  e.g. ./data/candidates.jsonl")
+parser.add_argument("--out", required=True,help="Path for the output CSV  e.g. ./submission.csv")
+parser.add_argument("--jd", default="job_description.md",help="Path to the job description markdown file  (default: data/job_description.md)")
+args = parser.parse_args()
 
 # Configuration
 
-JD_File = "data/job_description.md"
-candidates_file = "data/candidates.jsonl"
+JD_File = args.jd
+candidates_file = args.candidates
 model_path = "models/all-MiniLM-L6-v2"
 
 top_filter = 1000
@@ -123,6 +132,7 @@ NEGATIVE_SKILLS = {
     "robotics"
 }
 
+# Helpers
 def safe_lower(value):
     return str(value).lower()
 
@@ -154,6 +164,7 @@ def candidate_text(candidate):
 
     return " ".join(parts).lower()
 
+# Honeypot detection
 def is_honeypot(candidate):
     profile = candidate.get("profile", {})
     career = candidate.get("career_history", [])
@@ -201,6 +212,7 @@ def is_honeypot(candidate):
 
     return False
 
+# Scoring 
 def score_skills(candidate):
     text = candidate_text(candidate)
     skills = [
@@ -333,7 +345,7 @@ def rule_score(candidate):
     score += score_behavior(candidate)
     return max(0.0, min(100.0, score))
 
-
+# Embedding helpers
 def cosine_similarity(a, b):
     denom = float(np.linalg.norm(a) * np.linalg.norm(b))
     if denom == 0.0:
@@ -375,7 +387,7 @@ def build_candidate_embedding_text(candidate):
 
     return " ".join(p for p in parts if p.strip())
 
-
+# Reasoning 
 def generate_reasoning(candidate):
     profile = candidate.get("profile", {})
     redrob = candidate.get("redrob_signals", {})
@@ -424,12 +436,16 @@ def generate_reasoning(candidate):
         parts.append("Concerns: " + "; ".join(concerns) + ".")
     return " ".join(parts).strip()
 
+# Main pipeline
+
 jd_text = load_jd(JD_File)
 
-# optional honeypot removal
+# honeypot removal
 candidates = [c for c in candidates if not is_honeypot(c)]
+print(f"  {len(candidates)} candidates after honeypot removal")
 
 # stage 1: rule-based scoring
+print("Stage 1: rule-based scoring ...")
 rule_results = []
 for candidate in candidates:
     score = rule_score(candidate)
@@ -437,8 +453,10 @@ for candidate in candidates:
 
 rule_results.sort(key=lambda x: (-x[0], x[1]["candidate_id"]))
 top_candidates = rule_results[:top_filter]
+print(f"{len(top_candidates)} candidates after rule-based scoring")
 
 # stage 2: semantic reranking
+print(f"Stage 2: loading model from {model_path} ...")
 model = SentenceTransformer(model_path)
 
 jd_embedding = model.encode(
@@ -446,7 +464,7 @@ jd_embedding = model.encode(
     convert_to_numpy=True,
     normalize_embeddings=True
 )
-
+print("Encoding candidate embeddings ...")
 final_results = []
 
 for rule_value, candidate in top_candidates:
@@ -470,7 +488,8 @@ final_results.sort(key=lambda x: (-x[0], x[1]["candidate_id"]))
 top_final = final_results[:final_filter]
 
 # write submission.csv
-with open("submission.csv", "w", newline="", encoding="utf-8") as f:
+print(f"Writing {len(top_final)} candidates to {args.out} ...")
+with open(args.out, "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(["candidate_id", "rank", "score", "reasoning"])
 
@@ -482,4 +501,4 @@ with open("submission.csv", "w", newline="", encoding="utf-8") as f:
             generate_reasoning(candidate)
         ])
 
-print("submission.csv created successfully")
+print(f"Done — {args.out} created successfully")
