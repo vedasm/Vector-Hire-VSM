@@ -1,3 +1,8 @@
+
+# Vector Hire — RedRob Candidate Ranker
+
+A two-stage AI candidate ranking system built for the RedRob challenge.
+
 ---
 title: Vector Hire – RedRob Candidate Ranker
 emoji: 💼
@@ -6,10 +11,6 @@ colorTo: purple
 sdk: docker
 pinned: false
 ---
-
-# Vector Hire — RedRob Candidate Ranker
-
-A two-stage AI candidate ranking system built for the RedRob challenge.
 
 ## How it works
 
