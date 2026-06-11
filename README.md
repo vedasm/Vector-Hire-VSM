@@ -151,5 +151,13 @@ python rank.py --candidates ./data/candidates.jsonl --out ./submission.csv
 
 **📌Note :** The `candidates.jsonl` is not commited so the user must downlaod it **before running**.
 
+This will:
+- Remove honeypot / invalid candidates
+- Score all candidates with rule-based heuristics
+- Select the top 1,000 by rule score
+- Encode all top-1,000 candidates + the JD using `all-MiniLM-L6-v2`
+- Compute a blended final score (65% rule + 35% semantic)
+- Write the top 100 to `submission.csv`
+**Expected runtime:** ~2–4 minutes on CPU for 100K candidates.
 
 
