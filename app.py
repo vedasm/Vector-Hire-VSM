@@ -23,6 +23,8 @@ if uploaded:
         candidates = [json.loads(line) for line in lines]
     except json.JSONDecodeError:
         candidates = json.loads(content)
+    
+    candidates = [c for c in candidates if not is_honeypot(c)]
 
     with st.spinner("Stage 1: Rule-based scoring..."):
         rule_results = sorted(
