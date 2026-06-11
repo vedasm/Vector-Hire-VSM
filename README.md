@@ -98,3 +98,58 @@ cd Vector-Hire
 ```
 git lfs pull
 ```
+
+## Requirements
+
+- Python 3.10+
+- CPU-only execution supported
+- No external API calls
+- No internet required during ranking
+
+## Installation
+
+1. Create a virtual environment:
+```bash
+python -m venv .venv
+```
+2. Activate it:
+- Windows
+```bash
+.venv\Scripts\activate
+```
+- Linux / macOS
+
+```bash
+source .venv/bin/activate
+```
+3. Install Package and modules
+```
+pip install -r requirements.txt
+```
+## Model
+
+This repository includes a local copy of:
+
+```text
+models/all-MiniLM-L6-v2
+```
+
+The ranking script loads the model from disk:
+
+```python
+model_path = "models/all-MiniLM-L6-v2"
+```
+Therefore no model download is required during evaluation.
+
+# Reproducing the Submission
+
+The following single command generates the final submission CSV:
+
+```bash
+python rank.py --candidates ./data/candidates.jsonl --out ./submission.csv 
+```
+
+**📌Note :** The `candidates.jsonl` is not commited so the user must downlaod it **before running**.
+
+
+
