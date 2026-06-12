@@ -20,7 +20,7 @@ Vector-Hire/
 ├── submission_metadata.yaml  # Portal metadata mirror
 ├── data/
 │   ├── job_description.md    # Target JD (Senior AI Engineer)
-│   └── candidates.jsonl      # Input candidate pool (not committed — see below)
+│   └── candidates.jsonl      # Input candidate pool
 └── models/
     └── all-MiniLM-L6-v2/     # Offline model weights (see Setup)
 ```
@@ -149,7 +149,7 @@ The following single command generates the final `submission.csv` i.e `team_Vect
 python rank.py --candidates ./data/candidates.jsonl --out ./submission.csv 
 ```
 
-**📌Note :** The `candidates.jsonl` is not commited so the user must downlaod it **before running**.
+**📌Note :** The `candidates.jsonl` is commited using git LFS so the user must make you have downlaod it fully **before running**.
 
 This will:
 - Remove honeypot / invalid candidates
